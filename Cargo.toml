@@ -1,0 +1,6 @@
+[package]
+name = "andaluz-core"
+version = "0.1.0"
+authors = ["vlopes"]
+
+[dependencies]
