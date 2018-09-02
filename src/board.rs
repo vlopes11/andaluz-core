@@ -1,17 +1,18 @@
 #[derive(Debug, PartialEq)]
-enum SquareContent {
+pub enum SquareContent {
     Queen,
     Attacked,
     Empty,
 }
 
-struct Square {
+pub struct Square {
     pub x: usize,
     pub y: usize,
 }
 
-struct Board {
+pub struct Board {
     pub cols: usize,
+    queen_count: usize,
     cells: Vec<i32>,
 }
 
@@ -19,16 +20,9 @@ impl Board {
     pub fn new(cols: usize) -> Board {
         Board{
             cols,
+            queen_count: 0,
             cells: vec![0; cols * cols],
         }
-    }
-
-    fn square_to_index(&self, square: &Square) -> usize {
-        square.x - 1 + self.cols * (square.y - 1)
-    }
-
-    pub fn get_cell(&self, square: &Square) -> i32 {
-        self.cells[self.square_to_index(square)]
     }
 
     pub fn get_square_content(&self, square: &Square) -> SquareContent {
@@ -49,26 +43,44 @@ impl Board {
     }
 
     pub fn put_queen(&mut self, square: &Square) -> Option<SquareContent> {
-        let index = self.square_to_index(square);
-        match self.get_square_content(square) {
-            SquareContent::Empty => {
-                self.execute_movement(square, -1);
-                self.cells[index] = 1;
+        let square_content = self.get_square_content(square);
+        match square_content {
+            SquareContent::Empty | SquareContent::Queen => {
+                self.execute_movement(square, square_content);
                 Some(self.get_square_content(square))
             },
-            SquareContent::Queen => {
-                self.execute_movement(square, 1);
-                self.cells[index] = 0;
-                Some(self.get_square_content(square))
-            },
-            SquareContent::Attacked => None,
+            _ => None,
         }
     }
 
-    fn execute_movement(&mut self, square: &Square, s: i32) {
+    pub fn solved(&self) -> bool {
+        self.queen_count == self.cols
+    }
+
+    fn square_to_index(&self, square: &Square) -> usize {
+        square.x - 1 + self.cols * (square.y - 1)
+    }
+
+    fn get_cell(&self, square: &Square) -> i32 {
+        self.cells[self.square_to_index(square)]
+    }
+
+    fn execute_movement(&mut self, square: &Square, square_content: SquareContent) {
         let index = self.square_to_index(square);
         let (x, y, c): (i32, i32, i32) =
                         (square.x as i32, square.y as i32, self.cols as i32);
+        let s: i32 = match square_content {
+            SquareContent::Queen => {
+                self.queen_count -= 1;
+                1
+            },
+            SquareContent::Empty => {
+                self.queen_count += 1;
+                -1
+            },
+            _ => 0,
+        };
+        self.cells[index] -= s;
         // Horizontal
         {
             let min = ((y - 1) * c) as usize;
@@ -162,5 +174,39 @@ mod tests {
                 &Square {x: 2, y: 2}), 2);
         assert_eq!(board.get_square_content(
                 &Square {x: 4, y: 3}), SquareContent::Empty);
+    }
+
+    #[test]
+    fn null_move() {
+        let mut board: Board = Board::new(8);
+        board.put_queen(&Square {x: 1, y: 2});
+        board.put_queen(&Square {x: 1, y: 2});
+        for x in 1..9 {
+            for y in 1..9 {
+                assert_eq!(board.get_square_content(
+                        &Square {x, y}), SquareContent::Empty);
+            }
+        }
+    }
+
+    #[test]
+    fn not_solved() {
+        let mut board: Board = Board::new(8);
+        board.put_queen(&Square {x: 1, y: 2});
+        assert_eq!(board.solved(), false);
+    }
+
+    #[test]
+    fn solved() {
+        let mut board: Board = Board::new(8);
+        board.put_queen(&Square {x: 1, y: 5});
+        board.put_queen(&Square {x: 2, y: 3});
+        board.put_queen(&Square {x: 3, y: 1});
+        board.put_queen(&Square {x: 4, y: 7});
+        board.put_queen(&Square {x: 5, y: 2});
+        board.put_queen(&Square {x: 6, y: 8});
+        board.put_queen(&Square {x: 7, y: 6});
+        board.put_queen(&Square {x: 8, y: 4});
+        assert!(board.solved());
     }
 }
