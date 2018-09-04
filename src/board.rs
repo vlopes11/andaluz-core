@@ -12,6 +12,7 @@ pub struct Square {
 
 pub struct Board {
     pub cols: usize,
+    pub signature: String,
     queen_count: usize,
     cells: Vec<i32>,
 }
@@ -22,6 +23,7 @@ impl Board {
             cols,
             queen_count: 0,
             cells: vec![0; cols * cols],
+            signature: "0".repeat(cols * cols),
         }
     }
 
@@ -133,6 +135,16 @@ impl Board {
                 }
             }
         }
+
+        self.signature = String::with_capacity(self.cells.len());
+        for cell in &self.cells {
+            self.signature.push(
+                match cell {
+                    1 => '1',
+                    _ => '0',
+                }
+            );
+        }
     }
 }
 
@@ -208,5 +220,21 @@ mod tests {
         board.put_queen(&Square {x: 7, y: 6});
         board.put_queen(&Square {x: 8, y: 4});
         assert!(board.solved());
+    }
+
+    #[test]
+    fn signature() {
+        let mut board: Board = Board::new(8);
+        board.put_queen(&Square {x: 1, y: 5});
+        board.put_queen(&Square {x: 2, y: 3});
+        board.put_queen(&Square {x: 3, y: 1});
+        board.put_queen(&Square {x: 4, y: 7});
+        board.put_queen(&Square {x: 5, y: 2});
+        board.put_queen(&Square {x: 6, y: 8});
+        board.put_queen(&Square {x: 7, y: 6});
+        board.put_queen(&Square {x: 8, y: 4});
+        assert_eq!(
+            "0010000000001000010000000000000110000000000000100001000000000100",
+            board.signature);
     }
 }
