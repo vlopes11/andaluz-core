@@ -1,4 +1,5 @@
 pub mod board;
+pub mod solver;
 
 #[cfg(test)]
 mod tests {

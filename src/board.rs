@@ -1,3 +1,6 @@
+use std::cmp::Ordering;
+use solver::Solver;
+
 #[derive(Debug, PartialEq)]
 pub enum SquareContent {
     Queen,
@@ -8,6 +11,34 @@ pub enum SquareContent {
 pub struct Square {
     pub x: usize,
     pub y: usize,
+}
+
+pub struct Move {
+    pub s: Square,
+    pub h: f64,
+}
+
+impl PartialEq for Move {
+    fn eq(&self, other: &Move) -> bool {
+        self.s.x == other.s.x && self.s.y == other.s.y
+    }
+}
+
+impl PartialOrd for Move {
+    fn partial_cmp(&self, other: &Move) -> Option<Ordering> {
+        self.h.partial_cmp(&other.h)
+    }
+}
+
+impl Eq for Move {}
+
+impl Ord for Move {
+    fn cmp(&self, other: &Move) -> Ordering {
+        match self.partial_cmp(other) {
+            Some(m) => m,
+            None => Ordering::Equal,
+        }
+    }
 }
 
 pub struct Board {
@@ -57,6 +88,30 @@ impl Board {
 
     pub fn solved(&self) -> bool {
         self.queen_count == self.cols
+    }
+
+    pub fn get_available_moves(&mut self, solver: &Solver) -> Vec<Move> {
+        let mut v = Vec::with_capacity(self.cols * self.cols);
+        for x in 0..self.cols {
+            for y in 0..self.cols {
+                let s = Square {
+                    x: x + 1,
+                    y: y + 1,
+                };
+                match self.get_square_content(&s) {
+                    SquareContent::Empty => {
+                        let h = solver.calc_heuristic(self, &s);
+                        v.push(Move {
+                            s,
+                            h,
+                        })
+                    },
+                    _ => {}
+                };
+            }
+        }
+        v.sort_by(|a, b| b.cmp(a));
+        v
     }
 
     fn square_to_index(&self, square: &Square) -> usize {
