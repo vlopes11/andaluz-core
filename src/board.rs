@@ -1,45 +1,6 @@
-use std::cmp::Ordering;
+use board_move::BoardMove;
+use square::{SquareContent, Square};
 use solver::Solver;
-
-#[derive(Debug, PartialEq)]
-pub enum SquareContent {
-    Queen,
-    Attacked,
-    Empty,
-}
-
-pub struct Square {
-    pub x: usize,
-    pub y: usize,
-}
-
-pub struct Move {
-    pub s: Square,
-    pub h: f64,
-}
-
-impl PartialEq for Move {
-    fn eq(&self, other: &Move) -> bool {
-        self.s.x == other.s.x && self.s.y == other.s.y
-    }
-}
-
-impl PartialOrd for Move {
-    fn partial_cmp(&self, other: &Move) -> Option<Ordering> {
-        self.h.partial_cmp(&other.h)
-    }
-}
-
-impl Eq for Move {}
-
-impl Ord for Move {
-    fn cmp(&self, other: &Move) -> Ordering {
-        match self.partial_cmp(other) {
-            Some(m) => m,
-            None => Ordering::Equal,
-        }
-    }
-}
 
 pub struct Board {
     pub cols: usize,
@@ -90,7 +51,7 @@ impl Board {
         self.queen_count == self.cols
     }
 
-    pub fn get_available_moves(&mut self, solver: &Solver) -> Vec<Move> {
+    pub fn get_available_moves(&mut self, solver: &Solver) -> Vec<BoardMove> {
         let mut v = Vec::with_capacity(self.cols * self.cols);
         for x in 0..self.cols {
             for y in 0..self.cols {
@@ -101,7 +62,7 @@ impl Board {
                 match self.get_square_content(&s) {
                     SquareContent::Empty => {
                         let h = solver.calc_heuristic(self, &s);
-                        v.push(Move {
+                        v.push(BoardMove {
                             s,
                             h,
                         })

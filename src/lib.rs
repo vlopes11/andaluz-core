@@ -1,3 +1,5 @@
+pub mod board_move;
+pub mod square;
 pub mod board;
 pub mod solver;
 

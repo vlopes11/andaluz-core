@@ -1,4 +1,5 @@
-use board::{Board, Square};
+use square::Square;
+use board::Board;
 use solver::Solver;
 
 pub struct BruteForce {

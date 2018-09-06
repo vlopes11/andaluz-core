@@ -1,6 +1,7 @@
 pub mod bruteforce;
 
-use board::{Board, Square};
+use square::Square;
+use board::Board;
 
 pub trait Solver {
     fn solve(&mut self, &mut Board) -> bool;
