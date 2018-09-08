@@ -8,7 +8,7 @@ pub struct BruteForce {
 
 impl Heuristic for BruteForce {
     fn calculate(&self, _board: &Board, _square: &Square) -> f64 {
-	1.0
+	0.0
     }
 }
 
@@ -21,6 +21,15 @@ mod tests {
 	let board = Board::new(4);
 	let square = Square {x: 1, y: 1};
 	let heuristic = BruteForce {};
-	assert_eq!(heuristic.calculate(&board, &square), 1.0);
+	assert_eq!(heuristic.calculate(&board, &square), 0.0);
+    }
+
+    #[test]
+    fn solve() {
+	let mut board: Board = Board::new(4);
+        board.reset_heuristic();
+        board.inject_heuristic(BruteForce {}, 1.0);
+        board.solve();
+	assert!(board.solved());
     }
 }

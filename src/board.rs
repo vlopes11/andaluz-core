@@ -1,7 +1,6 @@
 use board_move::BoardMove;
 use square::{SquareContent, Square};
 use heuristic::Heuristic;
-use heuristic::bruteforce::BruteForce;
 use std::collections::HashSet;
 
 pub struct HeuristicWeight {
@@ -28,9 +27,9 @@ pub struct Board {
     pub signature: String,
     pub jumps: u64,
     pub heuristics: Vec<HeuristicWeight>,
+    cells: Vec<i32>,
     hash: HashSet<String>,
     queen_count: usize,
-    cells: Vec<i32>,
 }
 
 impl Board {
@@ -39,12 +38,7 @@ impl Board {
 	    cols,
 	    queen_count: 0,
 	    jumps: 0,
-	    heuristics: vec![
-		HeuristicWeight {
-		    h: Box::new(BruteForce {}),
-		    w: 1.0,
-		}
-	    ],
+	    heuristics: vec![],
 	    hash: HashSet::new(),
 	    cells: vec![0; cols * cols],
 	    signature: "0".repeat(cols * cols),
@@ -124,6 +118,16 @@ impl Board {
 	}
 	v.sort_by(|a, b| b.cmp(a));
 	v
+    }
+
+    pub fn reset_heuristic(&mut self) { self.heuristics.clear(); }
+
+    pub fn inject_heuristic<T: Heuristic + 'static>(&mut self, heuristic: T, weight: f64)
+    {
+        self.heuristics.push(HeuristicWeight {
+            h: Box::new(heuristic),
+            w: weight
+        });
     }
 
     pub fn calc_heuristic(&mut self, square: &Square) -> f64 {
