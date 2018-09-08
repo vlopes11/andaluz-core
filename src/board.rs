@@ -1,10 +1,14 @@
 use board_move::BoardMove;
 use square::{SquareContent, Square};
-use solver::Solver;
+use heuristic::Heuristic;
+use heuristic::bruteforce::BruteForce;
+use std::collections::HashSet;
 
 pub struct Board {
     pub cols: usize,
     pub signature: String,
+    pub jumps: u64,
+    hash: HashSet<String>,
     queen_count: usize,
     cells: Vec<i32>,
 }
@@ -14,6 +18,8 @@ impl Board {
         Board{
             cols,
             queen_count: 0,
+            jumps: 0,
+            hash: HashSet::new(),
             cells: vec![0; cols * cols],
             signature: "0".repeat(cols * cols),
         }
@@ -51,7 +57,14 @@ impl Board {
         self.queen_count == self.cols
     }
 
-    pub fn get_available_moves(&mut self, solver: &Solver) -> Vec<BoardMove> {
+    pub fn solve(&mut self) -> bool {
+        self.jumps = 0;
+        self.hash.clear();
+
+        self.solve_internal()
+    }
+
+    pub fn get_available_moves(&mut self) -> Vec<BoardMove> {
         let mut v = Vec::with_capacity(self.cols * self.cols);
         for x in 0..self.cols {
             for y in 0..self.cols {
@@ -61,7 +74,7 @@ impl Board {
                 };
                 match self.get_square_content(&s) {
                     SquareContent::Empty => {
-                        let h = solver.calc_heuristic(self, &s);
+                        let h = self.calc_heuristic(&s);
                         v.push(BoardMove {
                             s,
                             h,
@@ -73,6 +86,36 @@ impl Board {
         }
         v.sort_by(|a, b| b.cmp(a));
         v
+    }
+
+    pub fn calc_heuristic(&mut self, square: &Square) -> f64 {
+        let bf = BruteForce {};
+        self.put_queen(square);
+        let h = bf.calculate(self, square);
+        self.put_queen(square);
+        h
+    }
+
+    fn solve_internal(&mut self) -> bool {
+        if self.solved() {
+            return true;
+        } else if self.hash.contains(&self.signature) {
+            return false;
+        }
+
+        self.jumps += 1;
+
+        let moves = self.get_available_moves();
+        for m in moves {
+            self.put_queen(&m.s);
+            self.solve_internal();
+            if ! self.solved() {
+                self.put_queen(&m.s);
+                self.hash.insert(self.signature.clone());
+            }
+        }
+
+        self.solved()
     }
 
     fn square_to_index(&self, square: &Square) -> usize {
