@@ -4,10 +4,30 @@ use heuristic::Heuristic;
 use heuristic::bruteforce::BruteForce;
 use std::collections::HashSet;
 
+pub struct HeuristicWeight {
+    h: Box<Heuristic>,
+    w: f64,
+}
+
+impl Clone for HeuristicWeight {
+    fn clone(&self) -> HeuristicWeight {
+        HeuristicWeight {
+            h: Box::new(BruteForce {}), // TODO - Should be gen. impl. of Heuristic
+            w: self.w.clone(),
+        }
+    }
+}
+
+pub struct BoardOptions {
+    pub cols: usize,
+    pub heuristics: Vec<HeuristicWeight>,
+}
+
 pub struct Board {
     pub cols: usize,
     pub signature: String,
     pub jumps: u64,
+    pub heuristics: Vec<HeuristicWeight>,
     hash: HashSet<String>,
     queen_count: usize,
     cells: Vec<i32>,
@@ -19,9 +39,27 @@ impl Board {
             cols,
             queen_count: 0,
             jumps: 0,
+            heuristics: vec![
+                HeuristicWeight {
+                    h: Box::new(BruteForce {}),
+                    w: 1.0,
+                }
+            ],
             hash: HashSet::new(),
             cells: vec![0; cols * cols],
             signature: "0".repeat(cols * cols),
+        }
+    }
+
+    pub fn from_options(options: BoardOptions) -> Board {
+        Board{
+            cols: options.cols,
+            queen_count: 0,
+            jumps: 0,
+            heuristics: options.heuristics,
+            hash: HashSet::new(),
+            cells: vec![0; options.cols * options.cols],
+            signature: "0".repeat(options.cols * options.cols),
         }
     }
 
@@ -89,10 +127,26 @@ impl Board {
     }
 
     pub fn calc_heuristic(&mut self, square: &Square) -> f64 {
-        let bf = BruteForce {};
+        let mut h = 0.0;
+        let mut total_weight = 0.0;
+        let mut calculated_heuristics: Vec<(f64, f64)> =
+            Vec::with_capacity(self.heuristics.len());
+
         self.put_queen(square);
-        let h = bf.calculate(self, square);
+        for heuristic_weight in self.heuristics.iter().cloned() {
+            calculated_heuristics.push((
+                heuristic_weight.h.calculate(&self, square),
+                heuristic_weight.w));
+            total_weight += heuristic_weight.w;
+        }
         self.put_queen(square);
+
+        if total_weight >= 0.0 {
+            for (heuristic, weigth) in calculated_heuristics {
+                h += heuristic * weigth / total_weight;
+            }
+        }
+
         h
     }
 
