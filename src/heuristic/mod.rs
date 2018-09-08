@@ -1,5 +1,6 @@
 pub mod bruteforce;
 pub mod attacksum;
+pub mod horse;
 
 use square::Square;
 use board::Board;
