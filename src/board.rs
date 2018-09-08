@@ -350,4 +350,15 @@ mod tests {
 	    "0010000000001000010000000000000110000000000000100001000000000100",
 	    board.signature);
     }
+
+    #[test]
+    fn solved_without_heuristics() {
+	let mut board: Board = Board::from_options(
+            BoardOptions {
+                cols: 4,
+                heuristics: vec![],
+            });
+        board.solve();
+	assert!(board.solved());
+    }
 }
