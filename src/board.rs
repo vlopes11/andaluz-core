@@ -258,7 +258,8 @@ impl Board {
 	    self.signature.push(
 		match cell {
 		    1 => '1',
-		    _ => '0',
+		    0 => '0',
+		    _ => ' ',
 		}
 	    );
 	}
@@ -351,7 +352,7 @@ mod tests {
 	board.put_queen(&Square {x: 7, y: 6});
 	board.put_queen(&Square {x: 8, y: 4});
 	assert_eq!(
-	    "0010000000001000010000000000000110000000000000100001000000000100",
+	    "  1         1    1             11             1    1         1  ",
 	    board.signature);
     }
 
