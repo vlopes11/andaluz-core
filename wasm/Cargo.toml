@@ -1,0 +1,10 @@
+[package]
+name = "wasm"
+version = "0.1.0"
+authors = ["Victor Lopez <vhrlopes@gmail.com>"]
+
+[dependencies]
+andaluz-core = { path = "../" }
+
+[lib]
+crate-type = ["cdylib"]

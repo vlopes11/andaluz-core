@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title> cargo wasm </title>
+    <script>
+      fetch('wasm.wasm').then(response =>
+        response.arrayBuffer()
+      ).then(bytes =>
+        WebAssembly.instantiate(bytes, {})
+      ).then(results => {
+        console.log(results.instance.exports.solve());
+      });
+    </script>
+  </head>
+</html>
