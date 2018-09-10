@@ -8,16 +8,11 @@ use andaluz_core::square::{Square, SquareContent};
 use andaluz_core::board::Board;
 
 #[no_mangle]
-pub fn solve() -> i32 {
-    let mut board = Board::new(8);
-    let solved = board.solve();
-    let jumps = board.jumps;
-
-    if solved {
-        jumps as i32
-    } else {
-        0
-    }
+pub fn solve(pointer: *mut u8, cols: usize) -> i32 {
+    let mut board = board_from_pointer(pointer, cols);
+    board.solve();
+    board_to_pointer(&board, pointer);
+    board.jumps as i32
 }
 
 #[no_mangle]
@@ -48,16 +43,7 @@ pub extern "C" fn fill(pointer: *mut u8, cols: usize) {
 pub extern "C" fn put_queen(pointer: *mut u8, cols: usize, x: usize, y: usize) {
     let mut board = board_from_pointer(pointer, cols);
     board.put_queen(&Square {x, y});
-    let signature = board.signature;
-    let byte_size = cols * cols * 4;
-    let sl = unsafe { slice::from_raw_parts_mut(pointer, byte_size) };
-    for (i, c) in signature.chars().enumerate() {
-        sl[i] = match c {
-            '1' => 1,
-            '0' => 0,
-            _ => 2,
-        }
-    }
+    board_to_pointer(&board, pointer);
 }
 
 fn board_from_pointer(pointer: *mut u8, cols: usize) -> Board {
@@ -69,7 +55,7 @@ fn board_from_pointer(pointer: *mut u8, cols: usize) -> Board {
             let i = x + cols * y;
             match sl[i] {
                 1 => {
-                    board.put_queen(&Square {x, y})
+                    board.put_queen(&Square {x: x + 1, y: y + 1})
                         .unwrap_or(SquareContent::Empty)
                 },
                 _ => { SquareContent::Empty }
@@ -77,4 +63,20 @@ fn board_from_pointer(pointer: *mut u8, cols: usize) -> Board {
         }
     };
     board
+}
+
+fn board_to_pointer(board: &Board, pointer: *mut u8) {
+    let cols = board.cols;
+    let byte_size = cols * cols * 4;
+    let sl = unsafe { slice::from_raw_parts_mut(pointer, byte_size) };
+    for x in 0..cols {
+        for y in 0..cols {
+            let i = x + cols * y;
+            sl[i] = match board.get_square_content(&Square {x: x+1, y: y+1}) {
+                SquareContent::Queen => 1 as u8,
+                SquareContent::Empty => 0 as u8,
+                SquareContent::Attacked => 2 as u8,
+            }
+        }
+    }
 }

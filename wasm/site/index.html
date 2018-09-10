@@ -6,7 +6,7 @@
     <script>
 let module = {};
 let mod;
-let cols = 8;
+let cols = 12;
 let byteSize = cols * cols * 4;
 let pointer;
 let buffer;
@@ -88,6 +88,11 @@ function on_board_click(ev) {
     let x = Math.trunc(ev.offsetX / colWidth) + 1;
     let y = cols - Math.trunc(ev.offsetY / colHeight);
     module.put_queen(pointer, cols, x, y);
+    //new_board();
+    //let jumps = module.solve(pointer, cols);
+    buffer = new Uint8Array(mod.exports.memory.buffer, pointer, byteSize);
+    usub = new Uint8ClampedArray(mod.exports.memory.buffer, pointer, byteSize);
+    //console.log(jumps + " jumps executed...");
     draw_board(true);
 }
 
