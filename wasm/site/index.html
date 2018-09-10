@@ -13,4 +13,58 @@
       });
     </script>
   </head>
+  <body>
+    <canvas id="board" width="600" height="600"></canvas>
+    <img id="queen" style="display: none;" src="queen.svg" alt="SVG Queen" width="40" height="40" />
+    <img id="attack" style="display: none;" src="attack.svg" alt="SVG Attack" width="40" height="40" />
+    <script>
+var board = document.getElementById('board');
+var queen = document.getElementById('queen');
+var attack = document.getElementById('attack');
+var ctx2d = board.getContext("2d");
+
+function on_board_click(ev) {
+    var x = ev.clientX - board.offsetLeft;
+    var y = ev.clientY - board.offsetTop;
+    console.log("Click X: " + x);
+    console.log("Click Y: " + y);
+}
+
+board.addEventListener('click', on_board_click, false);
+
+var cols = 8;
+var cols2 = cols * cols;
+var width = board.width;
+var height = board.height;
+var colWidth = width / cols;
+var colHeight = height / cols;
+var dark = true;
+
+for(x = 0; x < cols; x++)
+	for(y = 0; y < cols; y++) {
+  	dark = (((y + 1) % 2) && !((x + 1) % 2)) || (!((y + 1) % 2) && ((x + 1) % 2));
+  	if (dark) {
+    	ctx2d.fillStyle = "#566573";
+      dark = false;
+    } else {
+    	ctx2d.fillStyle = "#eaecee";
+      dark = true;
+    }
+  	ctx2d.fillRect(x*colWidth, y*colHeight, colWidth, colHeight);
+    ctx2d.stroke();
+    if (x == 0 && y == 0) {
+        ctx2d.drawImage(queen, x * colWidth, y * colHeight, colWidth, colHeight);
+    }
+    if (x == 1 && y == 2) {
+        ctx2d.drawImage(queen, x * colWidth, y * colHeight, colWidth, colHeight);
+    }
+    if (x == 1 && y == 3) {
+        ctx2d.drawImage(attack, x * colWidth, y * colHeight, colWidth, colHeight);
+    }
+    if (x == 2 && y == 3) {
+        ctx2d.drawImage(attack, x * colWidth, y * colHeight, colWidth, colHeight);
+    }
+  }
+    </script>
+  </body>
 </html>
