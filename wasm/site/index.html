@@ -4,67 +4,95 @@
     <meta charset="utf-8">
     <title> cargo wasm </title>
     <script>
-      fetch('wasm.wasm').then(response =>
-        response.arrayBuffer()
-      ).then(bytes =>
-        WebAssembly.instantiate(bytes, {})
-      ).then(results => {
-        console.log(results.instance.exports.solve());
-      });
+let module = {};
+let mod;
+let cols = 8;
+let byteSize = cols * cols * 4;
+let pointer;
+let buffer;
+let usub;
+
+function new_board() {
+    if(usub) {
+        module.dealloc(pointer, byteSize);
+    }
+    byteSize = cols * cols * 4;
+    pointer = module.alloc(byteSize);
+    buffer = new Uint8Array(mod.exports.memory.buffer, pointer, byteSize);
+    usub = new Uint8ClampedArray(mod.exports.memory.buffer, pointer, byteSize);
+    module.fill(pointer, cols);
+    draw_board(false);
+}
+
+fetch('wasm.wasm').then(response =>
+    response.arrayBuffer()
+).then(bytes =>
+    WebAssembly.instantiate(bytes, {})
+).then(results => {
+    mod = results.instance;
+    module.alloc = mod.exports.alloc;
+    module.dealloc = mod.exports.dealloc;
+    module.fill = mod.exports.fill;
+    module.put_queen = mod.exports.put_queen;
+    module.solve = mod.exports.solve;
+
+    new_board();
+});
     </script>
   </head>
   <body>
-    <canvas id="board" width="600" height="600"></canvas>
+    <canvas id="board" width="700" height="700" style="border: black 1px solid"></canvas>
     <img id="queen" style="display: none;" src="queen.svg" alt="SVG Queen" width="40" height="40" />
     <img id="attack" style="display: none;" src="attack.svg" alt="SVG Attack" width="40" height="40" />
     <script>
-var board = document.getElementById('board');
-var queen = document.getElementById('queen');
-var attack = document.getElementById('attack');
-var ctx2d = board.getContext("2d");
+let board = document.getElementById('board');
+let width = board.width;
+let height = board.height;
+let colWidth = width / cols;
+let colHeight = height / cols;
+let queen = document.getElementById('queen');
+let attack = document.getElementById('attack');
+let ctx2d = board.getContext("2d");
+
+function draw_board(load_pieces) {
+    ctx2d.clearRect(0, 0, width, height);
+    let dark = true;
+    let content;
+    let y_real;
+    for(y = (cols - 1); y >= 0; y--) {
+        for(x = 0; x < cols; x++) {
+            dark = (((y + 1) % 2) && !((x + 1) % 2)) || (!((y + 1) % 2) && ((x + 1) % 2));
+            if (dark) {
+                ctx2d.fillStyle = "#566573";
+            } else {
+                ctx2d.fillStyle = "#eaecee";
+            }
+            ctx2d.fillRect(x*colWidth, y*colHeight, colWidth, colHeight);
+            ctx2d.stroke();
+            
+            if(load_pieces) {
+                y_real = cols - 1 - y;
+                content = usub[(x + cols * y_real)];
+                if (content == 0) {
+                } else if (content == 1) {
+                    ctx2d.drawImage(queen, x * colWidth, y * colHeight, colWidth, colHeight);
+                } else {
+                    ctx2d.drawImage(attack, x * colWidth, y * colHeight, colWidth, colHeight);
+                }
+            }
+        }
+    }
+}
 
 function on_board_click(ev) {
-    var x = ev.clientX - board.offsetLeft;
-    var y = ev.clientY - board.offsetTop;
-    console.log("Click X: " + x);
-    console.log("Click Y: " + y);
+    let x = Math.trunc(ev.offsetX / colWidth) + 1;
+    let y = cols - Math.trunc(ev.offsetY / colHeight);
+    module.put_queen(pointer, cols, x, y);
+    draw_board(true);
 }
 
 board.addEventListener('click', on_board_click, false);
-
-var cols = 8;
-var cols2 = cols * cols;
-var width = board.width;
-var height = board.height;
-var colWidth = width / cols;
-var colHeight = height / cols;
-var dark = true;
-
-for(x = 0; x < cols; x++)
-	for(y = 0; y < cols; y++) {
-  	dark = (((y + 1) % 2) && !((x + 1) % 2)) || (!((y + 1) % 2) && ((x + 1) % 2));
-  	if (dark) {
-    	ctx2d.fillStyle = "#566573";
-      dark = false;
-    } else {
-    	ctx2d.fillStyle = "#eaecee";
-      dark = true;
-    }
-  	ctx2d.fillRect(x*colWidth, y*colHeight, colWidth, colHeight);
-    ctx2d.stroke();
-    if (x == 0 && y == 0) {
-        ctx2d.drawImage(queen, x * colWidth, y * colHeight, colWidth, colHeight);
-    }
-    if (x == 1 && y == 2) {
-        ctx2d.drawImage(queen, x * colWidth, y * colHeight, colWidth, colHeight);
-    }
-    if (x == 1 && y == 3) {
-        ctx2d.drawImage(attack, x * colWidth, y * colHeight, colWidth, colHeight);
-    }
-    if (x == 2 && y == 3) {
-        ctx2d.drawImage(attack, x * colWidth, y * colHeight, colWidth, colHeight);
-    }
-  }
+draw_board(false);
     </script>
   </body>
 </html>
