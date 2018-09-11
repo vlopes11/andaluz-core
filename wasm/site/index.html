@@ -1,103 +1,219 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8">
-    <title> cargo wasm </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>[ Acrux ] Andaluz</title>
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/andaluz.css" rel="stylesheet">
     <script>
-let module = {};
-let mod;
-let cols = 12;
-let byteSize = cols * cols * 4;
-let pointer;
-let buffer;
-let usub;
+        let module = {};
+        let mod;
+        let cols = 8;
+        let byteSize = cols * cols * 4;
+        let pointer;
+        let buffer;
+        let usub;
 
-function new_board() {
-    if(usub) {
-        module.dealloc(pointer, byteSize);
-    }
-    byteSize = cols * cols * 4;
-    pointer = module.alloc(byteSize);
-    buffer = new Uint8Array(mod.exports.memory.buffer, pointer, byteSize);
-    usub = new Uint8ClampedArray(mod.exports.memory.buffer, pointer, byteSize);
-    module.fill(pointer, cols);
-    draw_board(false);
-}
+        fetch('wasm.wasm').then(response =>
+            response.arrayBuffer()
+        ).then(bytes =>
+            WebAssembly.instantiate(bytes, {})
+        ).then(results => {
+            mod = results.instance;
+            module.alloc = mod.exports.alloc;
+            module.dealloc = mod.exports.dealloc;
+            module.fill = mod.exports.fill;
+            module.put_queen = mod.exports.put_queen;
+            module.solve = mod.exports.solve;
 
-fetch('wasm.wasm').then(response =>
-    response.arrayBuffer()
-).then(bytes =>
-    WebAssembly.instantiate(bytes, {})
-).then(results => {
-    mod = results.instance;
-    module.alloc = mod.exports.alloc;
-    module.dealloc = mod.exports.dealloc;
-    module.fill = mod.exports.fill;
-    module.put_queen = mod.exports.put_queen;
-    module.solve = mod.exports.solve;
-
-    new_board();
-});
+            new_board();
+        });
     </script>
-  </head>
-  <body>
-    <canvas id="board" width="700" height="700" style="border: black 1px solid"></canvas>
-    <img id="queen" style="display: none;" src="queen.svg" alt="SVG Queen" width="40" height="40" />
-    <img id="attack" style="display: none;" src="attack.svg" alt="SVG Attack" width="40" height="40" />
-    <script>
-let board = document.getElementById('board');
-let width = board.width;
-let height = board.height;
-let colWidth = width / cols;
-let colHeight = height / cols;
-let queen = document.getElementById('queen');
-let attack = document.getElementById('attack');
-let ctx2d = board.getContext("2d");
+</head>
 
-function draw_board(load_pieces) {
-    ctx2d.clearRect(0, 0, width, height);
-    let dark = true;
-    let content;
-    let y_real;
-    for(y = (cols - 1); y >= 0; y--) {
-        for(x = 0; x < cols; x++) {
-            dark = (((y + 1) % 2) && !((x + 1) % 2)) || (!((y + 1) % 2) && ((x + 1) % 2));
-            if (dark) {
-                ctx2d.fillStyle = "#566573";
-            } else {
-                ctx2d.fillStyle = "#eaecee";
-            }
-            ctx2d.fillRect(x*colWidth, y*colHeight, colWidth, colHeight);
-            ctx2d.stroke();
-            
-            if(load_pieces) {
-                y_real = cols - 1 - y;
-                content = usub[(x + cols * y_real)];
-                if (content == 0) {
-                } else if (content == 1) {
-                    ctx2d.drawImage(queen, x * colWidth, y * colHeight, colWidth, colHeight);
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <div class="col form-group">
+                            <label for="terminal">Columns:</label>
+                            <input type="number" class="form-control" id="board_size" value="8" step="1" min="2"
+                                   onchange="resize_board();"/>
+                        </div>
+                    </li>
+                </ul>
+                <div class="col form-group">
+                    <label for="terminal">Output:</label>
+                    <textarea class="form-control" rows="5" id="terminal"></textarea>
+                </div>
+
+                <hr/>
+
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Built by</span>
+                </h6>
+                <ul class="nav flex-column mb-2">
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://github.com/vlopes11/andaluz-core" target="_blank">
+                            <span data-feather="github"></span>
+                            Victor Lopez
+                        </a>
+                    </li>
+                </ul>
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>With</span>
+                </h6>
+                <ul class="nav flex-column mb-2">
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://www.rust-lang.org/" target="_blank">
+                            <span data-feather="cpu"></span>
+                            Rust Lang
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://webassembly.org/" target="_blank">
+                            <span data-feather="layers"></span>
+                            WebAssembly
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://getbootstrap.com/" target="_blank">
+                            <span data-feather="layout"></span>
+                            Bootstrap
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Andaluz nQueen</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group mr-2">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="new_board();">Clear</button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="solve();">Solve</button>
+                    </div>
+                </div>
+            </div>
+
+            <canvas id="board" width="700" height="700"></canvas>
+            <img id="queen" style="display: none;" src="queen.svg" alt="SVG Queen" width="16" height="16"/>
+            <img id="attack" style="display: none;" src="attack.svg" alt="SVG Attack" width="40" height="40"/>
+        </main>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script>window.jQuery || document.write('<script src="js/jquery-slim.min.js"><\/script>')</script>
+<script src="js/popper.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+<script>
+    feather.replace()
+</script>
+<script>
+    let board = document.getElementById('board');
+    let terminal = document.getElementById('terminal');
+    let board_size = document.getElementById('board_size');
+    let width = board.width;
+    let height = board.height;
+    let colWidth = width / cols;
+    let colHeight = height / cols;
+    let queen = document.getElementById('queen');
+    let attack = document.getElementById('attack');
+    let ctx2d = board.getContext("2d");
+
+    function new_board() {
+        colWidth = width / cols;
+        colHeight = height / cols;
+        /*
+        if (usub) {
+            module.dealloc(pointer, byteSize);
+        }
+        */
+        byteSize = cols * cols * 4;
+        pointer = module.alloc(byteSize);
+        buffer = new Uint8Array(mod.exports.memory.buffer, pointer, byteSize);
+        usub = new Uint8ClampedArray(mod.exports.memory.buffer, pointer, byteSize);
+        module.fill(pointer, cols);
+        draw_board(false);
+        println("New board with " + cols + " columns allocated...");
+    }
+
+    function draw_board(load_pieces) {
+        ctx2d.clearRect(0, 0, width, height);
+        let dark = true;
+        let content;
+        let y_real;
+        let queens = 0;
+        for (y = (cols - 1); y >= 0; y--) {
+            for (x = 0; x < cols; x++) {
+                dark = (((y + 1) % 2) && !((x + 1) % 2)) || (!((y + 1) % 2) && ((x + 1) % 2));
+                if (dark) {
+                    ctx2d.fillStyle = "#566573";
                 } else {
-                    ctx2d.drawImage(attack, x * colWidth, y * colHeight, colWidth, colHeight);
+                    ctx2d.fillStyle = "#eaecee";
+                }
+                ctx2d.fillRect(x * colWidth, y * colHeight, colWidth, colHeight);
+                ctx2d.stroke();
+
+                if (load_pieces) {
+                    y_real = cols - 1 - y;
+                    content = usub[(x + cols * y_real)];
+                    if (content == 0) {
+                    } else if (content == 1) {
+                        ctx2d.drawImage(queen, x * colWidth, y * colHeight, colWidth, colHeight);
+                        queens++;
+                    } else {
+                        ctx2d.drawImage(attack, x * colWidth, y * colHeight, colWidth, colHeight);
+                    }
                 }
             }
         }
+        if (queens === cols) {
+            println("Solved!");
+        }
     }
-}
 
-function on_board_click(ev) {
-    let x = Math.trunc(ev.offsetX / colWidth) + 1;
-    let y = cols - Math.trunc(ev.offsetY / colHeight);
-    module.put_queen(pointer, cols, x, y);
-    //new_board();
-    //let jumps = module.solve(pointer, cols);
-    buffer = new Uint8Array(mod.exports.memory.buffer, pointer, byteSize);
-    usub = new Uint8ClampedArray(mod.exports.memory.buffer, pointer, byteSize);
-    //console.log(jumps + " jumps executed...");
-    draw_board(true);
-}
+    function on_board_click(ev) {
+        let x = Math.trunc(ev.offsetX / colWidth) + 1;
+        let y = cols - Math.trunc(ev.offsetY / colHeight);
+        module.put_queen(pointer, cols, x, y);
+        buffer = new Uint8Array(mod.exports.memory.buffer, pointer, byteSize);
+        usub = new Uint8ClampedArray(mod.exports.memory.buffer, pointer, byteSize);
+        draw_board(true);
+    }
 
-board.addEventListener('click', on_board_click, false);
-draw_board(false);
-    </script>
-  </body>
+    function solve() {
+        let jumps = module.solve(pointer, cols);
+        println(jumps + " jumps executed...");
+        buffer = new Uint8Array(mod.exports.memory.buffer, pointer, byteSize);
+        usub = new Uint8ClampedArray(mod.exports.memory.buffer, pointer, byteSize);
+        draw_board(true);
+    }
+
+    function println(message) {
+        terminal.value = message + "\n" + terminal.value;
+    }
+
+    function resize_board() {
+        cols = parseInt(board_size.value);
+        new_board();
+    }
+
+    board.addEventListener('click', on_board_click, false);
+    draw_board(false);
+</script>
+</body>
 </html>
