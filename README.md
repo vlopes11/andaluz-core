@@ -1,6 +1,6 @@
-### andaluz-core
+## Andaluz Core [![Build Status](https://travis-ci.org/vlopes11/andaluz-core.svg?branch=master)](https://travis-ci.org/vlopes11/andaluz-core)
 
-Library to solve n-queens problem
+Library to solve n-queens problem written in Rust
 
 ### Usage
 
