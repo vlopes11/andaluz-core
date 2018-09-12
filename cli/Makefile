@@ -1,7 +1,10 @@
-all:
+build :
 	cargo +nightly build
 
-test:
-
-release:
+release :
 	cargo +nightly build --release
+
+test : 
+
+clean :
+	cargo +nightly clean

@@ -1,14 +1,19 @@
-all:
+build :
 	cargo +nightly build
-	$(MAKE) -C cli
-	$(MAKE) -C wasm
+	$(MAKE) -C cli $@
+	$(MAKE) -C wasm $@
 
-test:
+test :
 	cargo +nightly test
-	$(MAKE) -C cli
-	$(MAKE) -C wasm
+	$(MAKE) -C cli $@
+	$(MAKE) -C wasm $@
 
-release:
+release :
 	cargo +nightly build --release
-	$(MAKE) -C cli
-	$(MAKE) -C wasm
+	$(MAKE) -C cli $@
+	$(MAKE) -C wasm $@
+
+clean :
+	cargo +nightly clean
+	$(MAKE) -C cli $@
+	$(MAKE) -C wasm $@
