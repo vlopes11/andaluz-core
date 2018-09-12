@@ -19,13 +19,14 @@ impl Clone for HeuristicWeight {
 
 pub struct BoardOptions {
     pub cols: usize,
-    pub heuristics: Vec<HeuristicWeight>,
+    pub max_jumps: u64,
 }
 
 pub struct Board {
     pub cols: usize,
     pub signature: String,
     pub jumps: u64,
+    pub max_jumps: u64,
     pub heuristics: Vec<HeuristicWeight>,
     cells: Vec<i32>,
     hash: HashSet<String>,
@@ -38,6 +39,7 @@ impl Board {
 	    cols,
 	    queen_count: 0,
 	    jumps: 0,
+	    max_jumps: 0,
 	    heuristics: vec![],
 	    hash: HashSet::new(),
 	    cells: vec![0; cols * cols],
@@ -50,7 +52,8 @@ impl Board {
 	    cols: options.cols,
 	    queen_count: 0,
 	    jumps: 0,
-	    heuristics: options.heuristics,
+	    max_jumps: options.max_jumps,
+	    heuristics: vec![],
 	    hash: HashSet::new(),
 	    cells: vec![0; options.cols * options.cols],
 	    signature: "0".repeat(options.cols * options.cols),
@@ -159,21 +162,41 @@ impl Board {
 	    return true;
 	} else if self.hash.contains(&self.signature) {
 	    return false;
-	}
+	} else if self.max_jumps > 0 && self.jumps >= self.max_jumps {
+            return false;
+        }
 
 	self.jumps += 1;
 
-	let moves = self.get_available_moves();
-	for m in moves {
-	    self.put_queen(&m.s);
-	    self.solve_internal();
-	    if ! self.solved() {
-		self.put_queen(&m.s);
-		self.hash.insert(self.signature.clone());
-	    }
-	}
+        {
+            let square = Square {x: self.cols / 2, y: self.cols / 2};
+            if self.get_square_content(&square) == SquareContent::Empty {
+                if self.validate_deep_move(&square) {
+                    return true;
+                }
+            }
+        }
+        
+        {
+            let moves = self.get_available_moves();
+            for m in moves {
+                if self.validate_deep_move(&m.s) {
+                    return true;
+                }
+            }
+        }
 
 	self.solved()
+    }
+
+    fn validate_deep_move(&mut self, square: &Square) -> bool {
+        self.put_queen(square);
+        self.solve_internal();
+        if ! self.solved() {
+            self.put_queen(square);
+            self.hash.insert(self.signature.clone());
+        }
+        self.solved()
     }
 
     fn square_to_index(&self, square: &Square) -> usize {
@@ -361,7 +384,7 @@ mod tests {
 	let mut board: Board = Board::from_options(
             BoardOptions {
                 cols: 4,
-                heuristics: vec![],
+                max_jumps: 3000,
             });
         board.solve();
 	assert!(board.solved());

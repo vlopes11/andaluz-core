@@ -2,7 +2,7 @@ extern crate clap;
 extern crate andaluz_core;
 
 use clap::{Arg, App};
-use andaluz_core::board::Board;
+use andaluz_core::board::{Board, BoardOptions};
 use andaluz_core::heuristic::bruteforce::BruteForce;
 use andaluz_core::heuristic::attacksum::AttackSum;
 use andaluz_core::heuristic::horse::Horse;
@@ -14,6 +14,10 @@ fn main() {
         .arg(Arg::with_name("cols")
              .short("c")
              .long("Columns of the board")
+             .takes_value(true))
+        .arg(Arg::with_name("max-jumps")
+             .short("m")
+             .long("Maximum number of jumps before fail")
              .takes_value(true))
         .arg(Arg::with_name("bruteforce")
              .short("b")
@@ -35,6 +39,12 @@ fn main() {
         .parse()
         .unwrap_or(8);
 
+    let max_jumps: u64 = matches
+        .value_of("max-jumps")
+        .unwrap_or("0")
+        .parse()
+        .unwrap_or(0);
+
     let bruteforce: f64 = matches
         .value_of("bruteforce")
         .unwrap_or("0.0")
@@ -53,12 +63,17 @@ fn main() {
         .parse()
         .unwrap_or(0.0);
 
-    println!("Starting processing with cols = {} with weights:", cols);
+    println!("Starting processing with cols = {}, maxjumps = {} and weights:", cols, max_jumps);
     println!("BruteForce: {}", bruteforce);
     println!("AttackSum: {}", attacksum);
     println!("Horse: {}", horse);
 
-    let mut board = Board::new(cols);
+    let options = BoardOptions {
+        cols,
+        max_jumps,
+    };
+
+    let mut board = Board::from_options(options);
     let max_weigth = bruteforce + attacksum + horse;
     
     if bruteforce > 0.0 {

@@ -6,10 +6,34 @@ use std::os::raw::c_void;
 
 use andaluz_core::square::{Square, SquareContent};
 use andaluz_core::board::Board;
+use andaluz_core::heuristic::bruteforce::BruteForce;
+use andaluz_core::heuristic::attacksum::AttackSum;
+use andaluz_core::heuristic::horse::Horse;
 
 #[no_mangle]
-pub fn solve(pointer: *mut u8, cols: usize) -> i32 {
+pub fn solve(pointer: *mut u8, cols: usize, max_jumps: i32, bruteforce: i32, attacksum: i32, horse: i32) -> i32 {
     let mut board = board_from_pointer(pointer, cols);
+    if max_jumps > 0 {
+        board.max_jumps = max_jumps as u64;
+    }
+    let bruteforce = bruteforce as f64;
+    let attacksum = attacksum as f64;
+    let horse = horse as f64;
+
+    let max_weigth = bruteforce + attacksum + horse;
+    
+    if bruteforce > 0.0 {
+        board.inject_heuristic(BruteForce {},
+                               bruteforce / max_weigth);
+    }
+    if attacksum > 0.0 {
+        board.inject_heuristic(AttackSum {},
+                               attacksum / max_weigth);
+    }
+    if horse > 0.0 {
+        board.inject_heuristic(Horse {},
+                               horse / max_weigth);
+    }
     board.solve();
     board_to_pointer(&board, pointer);
     board.jumps as i32

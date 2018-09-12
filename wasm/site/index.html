@@ -44,16 +44,48 @@
                 <ul class="nav flex-column">
                     <li class="nav-item">
                         <div class="col form-group">
-                            <label for="terminal">Columns:</label>
+                            <label for="board_size">Columns:</label>
                             <input type="number" class="form-control" id="board_size" value="8" step="1" min="2"
                                    onchange="resize_board();"/>
                         </div>
                     </li>
+                    <li class="nav-item">
+                        <div class="col form-group">
+                            <label for="max_jumps">Max jumps (0 unlimited):</label>
+                            <input type="number" class="form-control" id="max_jumps" value="100000" step="1" min="0" />
+                        </div>
+                    </li>
+                    <li class="nav-item">
+						<div class="col form-group input-group">
+							<div class="input-group-prepend">
+								<div class="input-group-text">BruteForce weigth</div>
+							</div>
+							<input type="number" class="form-control" id="bruteforce"value="0" step="1" min="0" />
+						</div>
+                    </li>
+                    <li class="nav-item">
+						<div class="col form-group input-group">
+							<div class="input-group-prepend">
+								<div class="input-group-text">AttackSum weigth</div>
+							</div>
+							<input type="number" class="form-control" id="attacksum"value="0" step="1" min="0" />
+						</div>
+                    </li>
+                    <li class="nav-item">
+						<div class="col form-group input-group">
+							<div class="input-group-prepend">
+								<div class="input-group-text">Horse weigth</div>
+							</div>
+							<input type="number" class="form-control" id="horse"value="0" step="1" min="0" />
+						</div>
+                    </li>
+                    <li class="nav-item">
+                        <div class="col form-group">
+                            <label for="terminal">Output:</label>
+                            <textarea class="form-control" rows="5" id="terminal"></textarea>
+                        </div>
+                    </li>
                 </ul>
-                <div class="col form-group">
-                    <label for="terminal">Output:</label>
-                    <textarea class="form-control" rows="5" id="terminal"></textarea>
-                </div>
 
                 <hr/>
 
@@ -126,6 +158,10 @@
     let board = document.getElementById('board');
     let terminal = document.getElementById('terminal');
     let board_size = document.getElementById('board_size');
+    let max_jumps = document.getElementById('max_jumps');
+    let bruteforce = document.getElementById('bruteforce');
+    let attacksum = document.getElementById('attacksum');
+    let horse = document.getElementById('horse');
     let width = board.width;
     let height = board.height;
     let colWidth = width / cols;
@@ -137,11 +173,6 @@
     function new_board() {
         colWidth = width / cols;
         colHeight = height / cols;
-        /*
-        if (usub) {
-            module.dealloc(pointer, byteSize);
-        }
-        */
         byteSize = cols * cols * 4;
         pointer = module.alloc(byteSize);
         buffer = new Uint8Array(mod.exports.memory.buffer, pointer, byteSize);
@@ -196,7 +227,11 @@
     }
 
     function solve() {
-        let jumps = module.solve(pointer, cols);
+        let max_jumps_parse = int_from_input(max_jumps.value);
+        let bruteforce_weigth = int_from_input(bruteforce.value);
+        let attacksum_weigth = int_from_input(attacksum.value);
+        let horse_weigth = int_from_input(horse.value);
+        let jumps = module.solve(pointer, cols, max_jumps_parse, bruteforce_weigth, attacksum_weigth, horse_weigth);
         println(jumps + " jumps executed...");
         buffer = new Uint8Array(mod.exports.memory.buffer, pointer, byteSize);
         usub = new Uint8ClampedArray(mod.exports.memory.buffer, pointer, byteSize);
@@ -211,6 +246,14 @@
         cols = parseInt(board_size.value);
         new_board();
     }
+	
+	function int_from_input(value) {
+		let ret = parseInt(value);
+		if (! ret) {
+			ret = 0;
+		}
+		return ret;
+	}
 
     board.addEventListener('click', on_board_click, false);
     draw_board(false);
