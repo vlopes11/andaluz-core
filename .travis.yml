@@ -1,8 +1,4 @@
 matrix:
     include:
         - language: rust
-          rust: stable
-        - language: rust
-          rust: stable
-          before_install:
-              - cd cli
+          rust: nightly
