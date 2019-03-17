@@ -376,6 +376,7 @@ impl Board {
     }
 
     pub fn to_multiline_string(&self) -> String {
+        // TODO - Fix for boards with cols != 8
         let mut board = String::from("");
         self.get_signature()
             .iter()

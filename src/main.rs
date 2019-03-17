@@ -21,7 +21,7 @@ fn main() {
                 .value_name("FORMAT")
                 .help("Set the i/o format")
                 .takes_value(true)
-                .possible_values(&["decimal", "bits", "pretty"])
+                .possible_values(&["bits", "decimal", "hex", "pretty"])
                 .default_value("pretty"),
         )
         .arg(
@@ -59,11 +59,14 @@ fn main() {
 
     if result.is_solved() {
         match matches.value_of("format").unwrap() {
+            "bits" => {
+                println!("{},{},{}", original.to_string(), result.get_jumps(), board.to_string());
+            },
             "decimal" => {
                 println!("{:?},{},{:?}", original.get_signature(), result.get_jumps(), board.get_signature());
             },
-            "bits" => {
-                println!("{},{},{}", original.to_string(), result.get_jumps(), board.to_string());
+            "hex" => {
+                println!("{:x?},{},{:x?}", original.get_signature(), result.get_jumps(), board.get_signature());
             },
             "pretty" => {
                 println!("Heuristics: {}", result.get_heuristics_description());
@@ -71,6 +74,10 @@ fn main() {
                 println!("Signature: {:?}", board.get_signature());
                 println!("Bits: {}", board.to_string());
                 println!("");
+                println!("From:");
+                println!("{}", original.to_multiline_string());
+                println!("");
+                println!("To:");
                 println!("{}", board.to_multiline_string());
             },
             _ => {},
