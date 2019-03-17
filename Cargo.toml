@@ -1,6 +1,9 @@
 [package]
 name = "andaluz-core"
-version = "0.1.0"
-authors = ["vlopes"]
+version = "0.2.0"
+authors = ["Victor Lopez <vhrlopes@gmail.com>"]
+edition = "2018"
+description = "nQueen solver"
 
 [dependencies]
+clap = "2.32.0"

@@ -1,12 +1,6 @@
-pub mod board_move;
-pub mod square;
 pub mod board;
+pub mod cell;
+pub mod classifier;
 pub mod heuristic;
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
+pub mod heuristic_implementation;
+pub mod solver;
