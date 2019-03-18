@@ -45,6 +45,13 @@ impl Cell {
         }
     }
 
+    pub fn is_attacked(&self) -> bool {
+        match &self.content {
+            CellContent::Attack(_) => true,
+            _ => false,
+        }
+    }
+
     pub fn toggle(&mut self) -> Result<&CellContent, String> {
         match &self.content {
             CellContent::Empty => {

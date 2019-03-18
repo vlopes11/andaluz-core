@@ -10,7 +10,7 @@ Library to solve n-queens problem written in Rust
 $ git clone https://github.com/vlopes11/andaluz-core
 $ cd andaluz-core
 $ make release
-$ ./cli/target/release/andaluz-cli -c 8
+$ ./target/release/andaluz-core -c 8
 ```
 
 #### WebAssembly
@@ -20,7 +20,7 @@ Example with firefox
 $ git clone https://github.com/vlopes11/andaluz-core
 $ cd andaluz-core
 $ make release
-$ firefox wasm/site/index.html
+$ firefox "`pwd`/site/index.html"
 ```
 
 ### TODO
