@@ -24,8 +24,8 @@ pub fn solve(pointer: *mut u8, cols: usize, max_jumps: i32, bruteforce: i32, att
     if bruteforce > 0 {
         solver.push_heuristic(BruteForce::new(bruteforce as f64));
     }
-
-    solver.push_heuristic(PrioritizeCenter::new(bruteforce.max(attacksum).max(horse) as f64));
+    
+    solver.push_heuristic(PrioritizeCenter::new((bruteforce.max(attacksum).max(horse)) as f64));
 
     if attacksum > 0 {
         solver.push_heuristic(AttackSum::new(attacksum as f64));
