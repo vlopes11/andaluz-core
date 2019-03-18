@@ -376,13 +376,19 @@ impl Board {
     }
 
     pub fn to_multiline_string(&self) -> String {
-        // TODO - Fix for boards with cols != 8
-        let mut board = String::from("");
-        self.get_signature()
-            .iter()
+        let mut board = self.to_string();
+
+        let mut v = vec![];
+
+        while board.len() > 0 {
+            let rest = board.split_off(*self.get_cols());
+            v.push(board);
+            board = rest;
+        }
+
+        v.iter()
             .rev()
-            .for_each(|s| board = format!("{}{:08b}\n", board, s));
-        board
+            .fold(String::from(""), |s, line| format!("{}{}\n", s, line))
     }
 }
 
@@ -392,6 +398,7 @@ impl ToString for Board {
         self.get_signature()
             .iter()
             .for_each(|s| board = format!("{}{:08b}", board, s));
+        board.split_off(self.get_cols() * self.get_cols());
         board
     }
 }
@@ -417,7 +424,7 @@ impl From<String> for Board {
         for (i, c) in string.as_str().char_indices() {
             if c == '1' {
                 let (x, y, _) = cells[i].get_xyi();
-                board.toggle_cell(x, y).unwrap();
+                board.toggle_cell(x, y).expect("Invalid board provided!");
             }
         }
 

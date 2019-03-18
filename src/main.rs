@@ -1,7 +1,7 @@
 use andaluz_core::board::Board;
-use andaluz_core::solver::Solver;
-use andaluz_core::heuristic_implementation::HeuristicImplementation;
 use andaluz_core::heuristic_implementation::prioritizecenter::PrioritizeCenter;
+use andaluz_core::heuristic_implementation::HeuristicImplementation;
+use andaluz_core::solver::Solver;
 use clap::{App, Arg};
 
 const NAME: Option<&'static str> = option_env!("CARGO_PKG_NAME");
@@ -44,11 +44,19 @@ fn main() {
         )
         .get_matches();
 
-    let cols: usize = matches.value_of("cols").unwrap().parse().unwrap();
+    let cols: usize = matches
+        .value_of("cols")
+        .expect("No valid columns value found!")
+        .parse()
+        .expect("Invalid columns value!");
     let mut board = Board::new(cols);
     let original = board.clone();
 
-    let max_jumps: u32 = matches.value_of("max_jumps").unwrap().parse().unwrap();
+    let max_jumps: u32 = matches
+        .value_of("max_jumps")
+        .expect("No valid max jumps value found!")
+        .parse()
+        .expect("Invalid max jumps value!");
     let mut solver = Solver::new();
     solver.set_max_jumps(max_jumps);
 
@@ -58,16 +66,34 @@ fn main() {
     let result = solver.solve(&mut board).unwrap();
 
     if result.is_solved() {
-        match matches.value_of("format").unwrap() {
+        match matches
+            .value_of("format")
+            .expect("Invalid provided format!")
+        {
             "bits" => {
-                println!("{},{},{}", original.to_string(), result.get_jumps(), board.to_string());
-            },
+                println!(
+                    "{},{},{}",
+                    original.to_string(),
+                    result.get_jumps(),
+                    board.to_string()
+                );
+            }
             "decimal" => {
-                println!("{:?},{},{:?}", original.get_signature(), result.get_jumps(), board.get_signature());
-            },
+                println!(
+                    "{:?},{},{:?}",
+                    original.get_signature(),
+                    result.get_jumps(),
+                    board.get_signature()
+                );
+            }
             "hex" => {
-                println!("{:x?},{},{:x?}", original.get_signature(), result.get_jumps(), board.get_signature());
-            },
+                println!(
+                    "{:x?},{},{:x?}",
+                    original.get_signature(),
+                    result.get_jumps(),
+                    board.get_signature()
+                );
+            }
             "pretty" => {
                 println!("Heuristics: {}", result.get_heuristics_description());
                 println!("Jumps: {}", result.get_jumps());
@@ -76,11 +102,10 @@ fn main() {
                 println!("");
                 println!("From:");
                 println!("{}", original.to_multiline_string());
-                println!("");
                 println!("To:");
                 println!("{}", board.to_multiline_string());
-            },
-            _ => {},
+            }
+            _ => {}
         };
     }
 }
