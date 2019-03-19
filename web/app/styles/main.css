@@ -7,8 +7,22 @@
 
 /* Space out content a bit */
 body {
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
+  color: rgba(255,255,255,.7);
+  background-color: #222;
+}
+
+.form-control {
+  color: #798087;
+}
+
+textarea.form-control {
+  background: #171717;
+  border: 1px solid #56595c;
+}
+
+input.form-control {
+  background: #23222c;
+  border: 1px solid #434d57;
 }
 
 /* Everything but the jumbotron gets side spacing for mobile first views */
@@ -22,7 +36,7 @@ body {
 /* Custom page header */
 .header {
   padding-bottom: 1rem;
-  border-bottom: .05rem solid #e5e5e5;
+  border-bottom: .05rem solid #4d4d4d;
 }
 
 /* Make the masthead heading the same height as the navigation */
@@ -36,31 +50,11 @@ body {
 .footer {
   padding-top: 1.5rem;
   color: #777;
-  border-top: .05rem solid #e5e5e5;
+  border-top: .05rem solid #4d4d4d;
 }
 
 .footer a[href] {
   color: inherit;
-}
-
-/* Customize container */
-@media (min-width: 48em) {
-  .container {
-    max-width: 46rem;
-  }
-}
-.container-narrow > hr {
-  margin: 2rem 0;
-}
-
-/* Main marketing message and sign up button */
-.jumbotron {
-  text-align: center;
-  border-bottom: .05rem solid #e5e5e5;
-}
-.jumbotron .btn {
-  padding: .75rem 1.5rem;
-  font-size: 1.5rem;
 }
 
 /* Supporting marketing content */
@@ -83,9 +77,5 @@ body {
   /* Space out the masthead */
   .header {
     margin-bottom: 2rem;
-  }
-  /* Remove the bottom border on the jumbotron for visual effect */
-  .jumbotron {
-    border-bottom: 0;
   }
 }
