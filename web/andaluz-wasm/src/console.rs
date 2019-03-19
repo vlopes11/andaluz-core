@@ -3,6 +3,7 @@ use stdweb::unstable::TryInto;
 use stdweb::web::document;
 use stdweb::web::html_element::TextAreaElement;
 
+#[derive(Debug, Clone)]
 pub struct Console {
     selector: TextAreaElement,
     value: String,
@@ -23,9 +24,8 @@ impl Console {
         }
     }
 
-    pub fn println(&mut self, txt: &str) {
-        self.value.push_str(txt);
-        self.value.push('\n');
+    pub fn println(&mut self, txt: String) {
+        self.value = format!("{}\n{}", txt, self.value);
         self.selector.set_value(self.value.as_str());
     }
 

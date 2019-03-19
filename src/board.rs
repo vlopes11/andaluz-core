@@ -27,17 +27,25 @@ impl Board {
     /// assert_eq!(board.get_signature(), &vec![0_u8; 5]);
     /// ```
     pub fn new(cols: usize) -> Self {
-        let cells = Vec::with_capacity(cols * cols);
-        let signature = Vec::with_capacity(1 + cols * cols / 8);
         let mut board = Board {
-            cols,
-            cells,
-            signature,
+            cols: 0,
+            cells: vec![],
+            signature: vec![],
             rotated_signatures: None,
         };
 
-        board.reset();
+        board.resize(cols);
+
         board
+    }
+
+    pub fn resize(&mut self, cols: usize) {
+        self.cells = Vec::with_capacity(cols * cols);
+        self.cols = cols;
+        self.signature = Vec::with_capacity(1 + cols * cols / 8);
+        self.rotated_signatures = None;
+
+        self.reset();
     }
 
     fn get_i_from_xy(&self, x: &usize, y: &usize) -> Result<usize, String> {
@@ -157,6 +165,12 @@ impl Board {
         self.rotated_signatures = None;
 
         Ok(())
+    }
+
+    pub fn try_toggle_cell(&mut self, x: &usize, y: &usize) {
+        match self.toggle_cell(x, y) {
+            _ => {},
+        }
     }
 
     /// Re-initialize the board
@@ -363,7 +377,6 @@ impl Board {
     }
 
     pub fn is_solved(&self) -> bool {
-        // TODO - not correct
         let queens = self
             .get_cells()
             .iter()

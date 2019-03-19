@@ -22,12 +22,70 @@
     <![endif]-->
     <div class="container">
       <div class="header">
-        <h3 class="text-muted">nQueen</h3>
+        <div class="d-flex justify-content-between align-items-center">
+          <h3 class="text-muted">nQueen</h3>
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group mr-2">
+              <button id="andaluz-clear"
+                      class="btn btn-sm btn-outline-secondary">Clear</button>
+              <button id="andaluz-solve"
+                      class="btn btn-sm btn-outline-secondary">Solve</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="row marketing">
         <div class="col-md-4">
-          <div class="form-group">
+          <div class="form-group row">
+            <label for="andaluz-cols"
+                   class="col-sm-7 col-form-label-sm">Columns</label>
+            <input class="form-control form-control-sm col-sm-4"
+                   id="andaluz-cols"
+                   type="number"
+                   step="1"
+                   min="2">
+          </div>
+          <div class="form-group row">
+            <label for="andaluz-maxjumps"
+                   class="col-sm-7 col-form-label-sm">Max Jumps</label>
+            <input class="form-control form-control-sm col-sm-4"
+                   id="andaluz-maxjumps"
+                   type="number">
+          </div>
+          <div class="form-group row">
+            <label for="andaluz-attacksum"
+                   class="col-sm-9 col-form-label-sm">Attack Sum</label>
+            <input class="form-control form-control-sm col-sm-2"
+                   id="andaluz-attacksum"
+                   value="0"
+                   type="number">
+          </div>
+          <div class="form-group row">
+            <label for="andaluz-attacksuminverse"
+                   class="col-sm-9 col-form-label-sm">Attack Sum Inverse</label>
+            <input class="form-control form-control-sm col-sm-2"
+                   id="andaluz-attacksuminverse"
+                   value="0"
+                   type="number">
+          </div>
+          <div class="form-group row">
+            <label for="andaluz-horse"
+                   class="col-sm-9 col-form-label-sm">Horse</label>
+            <input class="form-control form-control-sm col-sm-2"
+                   id="andaluz-horse"
+                   value="1"
+                   type="number">
+          </div>
+          <div class="form-group row">
+            <label for="andaluz-prioritizecenter"
+                   class="col-sm-9 col-form-label-sm">Prioritize Center</label>
+            <input class="form-control form-control-sm col-sm-2"
+                   id="andaluz-prioritizecenter"
+                   value="1"
+                   type="number">
+          </div>
+          <div class="form-group row">
             <textarea class="form-control form-control-sm"
                       id="andaluz-console"
                       rows="5"

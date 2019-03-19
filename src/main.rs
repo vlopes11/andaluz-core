@@ -1,4 +1,5 @@
 use andaluz_core::board::Board;
+use andaluz_core::heuristic_implementation::horse::Horse;
 use andaluz_core::heuristic_implementation::prioritizecenter::PrioritizeCenter;
 use andaluz_core::heuristic_implementation::HeuristicImplementation;
 use andaluz_core::solver::Solver;
@@ -61,6 +62,7 @@ fn main() {
     solver.set_max_jumps(max_jumps);
 
     // TODO - Define weigths via cli interface
+    solver.push_heuristic(Horse::new(1.0));
     solver.push_heuristic(PrioritizeCenter::new(1.0));
 
     let result = solver.solve(&mut board).unwrap();
