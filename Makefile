@@ -1,15 +1,15 @@
 build :
 	cargo +nightly build
-	$(MAKE) -C wasm $@
+	$(MAKE) -C web $@
 
 test :
 	cargo +nightly test
-	$(MAKE) -C wasm $@
+	$(MAKE) -C web $@
 
 release :
 	cargo +nightly build --release
-	$(MAKE) -C wasm $@
+	$(MAKE) -C web $@
 
 clean :
 	cargo +nightly clean
-	$(MAKE) -C wasm $@
+	$(MAKE) -C web $@

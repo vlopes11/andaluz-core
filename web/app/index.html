@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>web</title>
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <!-- Place favicon.ico in the root directory -->
+    <!-- build:css styles/main.css -->
+    <link rel="stylesheet" href="styles/ionicons.min.css">
+    <link rel="stylesheet" href="styles/main.css">
+    <!-- endbuild -->
+    <!-- build:css styles/vendor.css -->
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css" type="text/css" />
+    <!-- endbuild -->
+  </head>
+  <body>
+    <!--[if IE]>
+      <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+    <div class="container">
+      <div class="header">
+        <h3 class="text-muted">nQueen</h3>
+      </div>
+
+      <div class="row marketing">
+        <div class="col-md-4">
+          <div class="form-group">
+            <textarea class="form-control form-control-sm"
+                      id="andaluz-console"
+                      rows="5"
+                      placeholder="Console output..."></textarea>
+          </div>
+        </div>
+        <div class="offset-md-1 col-md-7">
+          <canvas id="andaluz-canvas" width="625" height="625"></canvas>
+          <img id="andaluz-queen"
+               style="display: none;"
+               src="images/queen.svg"
+               alt="SVG Queen"
+               width="16"
+               height="16"/>
+          <img id="andaluz-attack"
+               style="display: none;"
+               src="images/attack.svg"
+               alt="SVG Attack"
+               width="40"
+               height="40"/>
+        </div>
+      </div>
+
+      <div class="footer text-center font-weight-light">
+        <small>
+          by <a href="https://github.com/vlopes11/andaluz-core" target="_blank">
+          <i class="icon ion-logo-github"></i>
+          Victor Lopez
+        </a>
+          , powered by
+          <a href="https://www.rust-lang.org/" target="_blank">
+            <i class="icon ion-md-cog"></i>
+            Rust Lang
+          </a> |
+          <a href="https://webassembly.org/" target="_blank">
+            <i class="icon ion-md-speedometer"></i>
+            WebAssembly
+          </a> |
+          <a href="https://getbootstrap.com/" target="_blank">
+            <i class="icon ion-md-crop"></i>
+            Bootstrap
+          </a>
+        </small>
+      </div>
+    </div>
+    <!-- build:js scripts/vendor.js -->
+    <script type="text/javascript" src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <!-- endbuild -->
+    <!-- build:js scripts/main.js -->
+    <script src="scripts/andaluz-wasm.js"></script>
+    <script src="scripts/main.js"></script>
+    <!-- endbuild -->
+  </body>
+</html>
